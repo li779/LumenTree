@@ -64,5 +64,63 @@ void Octree::buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode
         }
     }
 }
+bool Octree::IntersectOctree(const Ray3f &ray_, Intersection &its, bool shadowRay, int &triIndex) const{
+    Ray3f ray(ray_);
+    return Octree::recursive(*root,ray,its,shadowRay,bounds,triIndex);
+}
+
+bool Octree::recursive(const treeNode &node, Ray3f &ray_, Intersection &its, bool shadowRay, BoundingBox3f bbox, int &triIndex) const{
+    bool foundIntersection = false;
+
+    // only check triangles of node and its children if ray intersects with node bbox
+    if (!bbox.rayIntersect(ray_)) {
+        return false;
+    }
+    std::vector<BoundingBox3f> subbounds;
+    Point3f halfsize =0.5*(bbox.max-bbox.min);
+    for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 2; j++){
+                for (int k = 0; k < 2; k++){
+                    Point3f add(i*halfsize.x(),j*halfsize.y(),k*halfsize.z());
+                    subbounds.push_back(BoundingBox3f(bbox.min+add,bbox.min+add+halfsize));
+                }
+            }
+        }
+    // search through all triangles in node
+    if (node.flag==1)
+    for (uint32_t i = 0; i < node.nTri; ++i) {
+        float u, v, t;
+        uint32_t triangle_idx = node.meshIndex+i;
+        if (mesh->rayIntersect(triangle_idx, ray_, u, v, t) && t < ray_.maxt) {
+            /* An intersection was found! Can terminate
+               immediately if this is a shadow ray query */
+            if (shadowRay)
+                return true;
+            ray_.maxt = its.t = t;
+            its.uv = Point2f(u, v);
+            its.mesh = mesh;
+            triIndex = triangle_idx;
+            foundIntersection = true;
+        }
+    }
+    else {
+        std::vector<std::pair<int, float>> children(8);
+        for (int i = 0; i < 8; i++){
+            children[i].first = i;
+            children[i].second = subbounds[i].distanceTo(ray_.o);
+        }
+
+        std::sort(children.begin(), children.end(), [](const std::pair<treeNode*, float>& l, const std::pair<treeNode*, float>& r) {
+            return l.second < r.second;
+        });
+
+        for (int i = 0; i<8; i++) {
+            foundIntersection = Octree::recursive(node.child[i], ray_, its, shadowRay, subbounds[i], triIndex) || foundIntersection;
+            if (shadowRay && foundIntersection)
+                return true;
+        }
+    }
+    return foundIntersection;
+}
 
 NORI_NAMESPACE_END

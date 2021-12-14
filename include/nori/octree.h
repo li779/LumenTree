@@ -7,10 +7,11 @@ class Octree{
     public:
     Octree(Mesh* mesh);
     BoundingBox3f WorldBound() const { return bounds;}
-    bool IntersectkdTree(const Ray3f &ray_, Intersection &its, bool shadowRay) const;
+    bool IntersectOctree(const Ray3f &ray_, Intersection &its, bool shadowRay,int &triIndex) const;
 
     private:
     void buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode *parent, int nTri);
+    bool recursive(const treeNode &node, Ray3f &ray_, Intersection &its, bool shadowRay, BoundingBox3f bbox,int &triIndex) const;
     Mesh* mesh;
     std::vector<int> meshIndices;
     BoundingBox3f bounds;
