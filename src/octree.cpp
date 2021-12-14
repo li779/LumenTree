@@ -110,7 +110,7 @@ bool Octree::recursive(const treeNode &node, Ray3f &ray_, Intersection &its, boo
             children[i].second = subbounds[i].distanceTo(ray_.o);
         }
 
-        std::sort(children.begin(), children.end(), [](const std::pair<treeNode*, float>& l, const std::pair<treeNode*, float>& r) {
+        std::sort(children.begin(), children.end(), [](const std::pair<int, float>& l, const std::pair<int, float>& r) {
             return l.second < r.second;
         });
 
