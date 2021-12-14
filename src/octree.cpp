@@ -59,7 +59,7 @@ void Octree::buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode
             }
         }
         for(int i = 0; i < 8; i++){
-            cur->child->Init(0,0,indexArray[i].size(),nullptr);
+            (cur->child)[i].Init(0,0,indexArray[i].size(),nullptr);
             buildTree(indexArray[i],subbounds[i],&(cur->child)[i],indexArray[i].size());
         }
     }
@@ -90,7 +90,7 @@ bool Octree::recursive(const treeNode &node, Ray3f &ray_, Intersection &its, boo
     if (node.flag==1)
     for (uint32_t i = 0; i < node.nTri; ++i) {
         float u, v, t;
-        uint32_t triangle_idx = node.meshIndex+i;
+        uint32_t triangle_idx = meshIndices[node.meshIndex+i];
         if (mesh->rayIntersect(triangle_idx, ray_, u, v, t) && t < ray_.maxt) {
             /* An intersection was found! Can terminate
                immediately if this is a shadow ray query */
