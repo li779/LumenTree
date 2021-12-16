@@ -115,7 +115,8 @@ bool Octree::recursive(const treeNode &node, Ray3f &ray_, Intersection &its, boo
         });
 
         for (int i = 0; i<8; i++) {
-            foundIntersection = Octree::recursive(node.child[i], ray_, its, shadowRay, subbounds[i], triIndex) || foundIntersection;
+            int index = children[i].first;
+            foundIntersection = Octree::recursive(node.child[index], ray_, its, shadowRay, subbounds[index], triIndex) || foundIntersection;
             if (shadowRay && foundIntersection)
                 return true;
         }
