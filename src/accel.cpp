@@ -43,7 +43,7 @@ bool Accel::rayIntersect(const Ray3f &ray_, Intersection &its, bool shadowRay) c
     //         foundIntersection = true;
     //     }
     // }
-    foundIntersection = ((Octree*)m_accel)->IntersectOctree(ray_, its, shadowRay, f);
+    foundIntersection = ((Octree*)m_accel)->IntersectOctree(ray, its, shadowRay, f);
     if(shadowRay && foundIntersection) return true;
 
     if (foundIntersection) {

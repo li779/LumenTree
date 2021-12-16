@@ -7,7 +7,7 @@ class Octree{
     public:
     Octree(Mesh* mesh);
     BoundingBox3f WorldBound() const { return bounds;}
-    bool IntersectOctree(const Ray3f &ray_, Intersection &its, bool shadowRay,int &triIndex) const;
+    bool IntersectOctree(Ray3f &ray_, Intersection &its, bool shadowRay,int &triIndex) const;
 
     private:
     void buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode *parent, int nTri);

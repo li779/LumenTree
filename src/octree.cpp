@@ -15,6 +15,7 @@ struct treeNode
         treeNode* child;
     };
 Octree::Octree(Mesh* mesh){
+    this->mesh = mesh;
     bounds = mesh->getBoundingBox();
     int nums = mesh->getTriangleCount();
     std::vector<int> triNums(nums);
@@ -64,8 +65,7 @@ void Octree::buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode
         }
     }
 }
-bool Octree::IntersectOctree(const Ray3f &ray_, Intersection &its, bool shadowRay, int &triIndex) const{
-    Ray3f ray(ray_);
+bool Octree::IntersectOctree(Ray3f &ray, Intersection &its, bool shadowRay, int &triIndex) const{
     return Octree::recursive(*root,ray,its,shadowRay,bounds,triIndex);
 }
 
