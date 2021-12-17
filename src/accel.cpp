@@ -6,6 +6,7 @@
 
 #include <nori/accel.h>
 #include <Eigen/Geometry>
+#include <nori/octree.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -17,30 +18,33 @@ void Accel::addMesh(Mesh *mesh) {
 }
 
 void Accel::build() {
-    /* Nothing to do here for now */
+    Octree* tree = new Octree(m_mesh);
+    m_accel = tree;
 }
 
 bool Accel::rayIntersect(const Ray3f &ray_, Intersection &its, bool shadowRay) const {
     bool foundIntersection = false;  // Was an intersection found so far?
-    uint32_t f = (uint32_t) -1;      // Triangle index of the closest intersection
+    int f = -1;      // Triangle index of the closest intersection
 
     Ray3f ray(ray_); /// Make a copy of the ray (we will need to update its '.maxt' value)
 
-    /* Brute force search through all triangles */
-    for (uint32_t idx = 0; idx < m_mesh->getTriangleCount(); ++idx) {
-        float u, v, t;
-        if (m_mesh->rayIntersect(idx, ray, u, v, t)) {
-            /* An intersection was found! Can terminate
-               immediately if this is a shadow ray query */
-            if (shadowRay)
-                return true;
-            ray.maxt = its.t = t;
-            its.uv = Point2f(u, v);
-            its.mesh = m_mesh;
-            f = idx;
-            foundIntersection = true;
-        }
-    }
+    // /* Brute force search through all triangles */
+    // for (uint32_t idx = 0; idx < m_mesh->getTriangleCount(); ++idx) {
+    //     float u, v, t;
+    //     if (m_mesh->rayIntersect(idx, ray, u, v, t)) {
+    //         /* An intersection was found! Can terminate
+    //            immediately if this is a shadow ray query */
+    //         if (shadowRay)
+    //             return true;
+    //         ray.maxt = its.t = t;
+    //         its.uv = Point2f(u, v);
+    //         its.mesh = m_mesh;
+    //         f = idx;
+    //         foundIntersection = true;
+    //     }
+    // }
+    foundIntersection = ((Octree*)m_accel)->IntersectOctree(ray, its, shadowRay, f);
+    if(shadowRay && foundIntersection) return true;
 
     if (foundIntersection) {
         /* At this point, we now know that there is an intersection,
