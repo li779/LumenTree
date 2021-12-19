@@ -92,6 +92,8 @@ add_executable(nori
   src/dielectric.cpp
   src/normals.cpp
   src/octree.cpp
+  src/area.cpp
+  src/whitted.cpp
   #src/KdTree.cpp
 )
 
