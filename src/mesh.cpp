@@ -26,6 +26,13 @@ void Mesh::activate() {
         m_bsdf = static_cast<BSDF *>(
             NoriObjectFactory::createInstance("diffuse", PropertyList()));
     }
+    if(this->isEmitter()){
+        m_DPDF.reserve(this->getTriangleCount());
+        for (uint32_t i = 0; i< this->getTriangleCount(); i++){
+            m_DPDF.append(this->surfaceArea(i));
+        }
+        m_DPDF.normalize();
+    }
 }
 
 float Mesh::surfaceArea(uint32_t index) const {
@@ -73,6 +80,27 @@ bool Mesh::rayIntersect(uint32_t index, const Ray3f &ray, float &u, float &v, fl
     t = edge2.dot(qvec) * inv_det;
 
     return t >= ray.mint && t <= ray.maxt;
+}
+
+void Mesh::samplingMeshSurface(Sampler *sample, Point3f &samplePoint, Normal3f &sampleNorm, float &samplePdf) const{
+    uint32_t triIndex = m_DPDF.sample(sample->next1D());
+    Point2f coord = sample->next2D();
+    Point2f bary(1-sqrt(1-coord.x()),coord.y()*sqrt(1-coord.x()));
+    uint32_t i0 = m_F(0, triIndex), i1 = m_F(1, triIndex), i2 = m_F(2, triIndex);
+    const Point3f v0 = m_V.col(i0), v1 = m_V.col(i1), v2 = m_V.col(i2);
+    samplePoint = bary.x()*v0+bary.y()*v1+(1-bary.x()-bary.y())*v2;
+
+    if(m_N.size()){
+        const Point3f n0 = m_N.col(i0), n1 = m_N.col(i1), n2 = m_N.col(i2);
+        sampleNorm = (bary.x()*n0+bary.y()*n1+(1-bary.x()-bary.y())*n2).normalized();
+    }else{
+        sampleNorm = ((v1-v0).cross(v2-v0)).normalized();
+    }
+    samplePdf = m_DPDF.getNormalization();
+}
+
+float Mesh::getPdf() const {
+    return m_DPDF.getNormalization();
 }
 
 BoundingBox3f Mesh::getBoundingBox(uint32_t index) const {

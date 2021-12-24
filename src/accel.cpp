@@ -11,14 +11,16 @@
 NORI_NAMESPACE_BEGIN
 
 void Accel::addMesh(Mesh *mesh) {
-    if (m_mesh)
-        throw NoriException("Accel: only a single mesh is supported!");
-    m_mesh = mesh;
-    m_bbox = m_mesh->getBoundingBox();
+    m_mesh.push_back(mesh);
+    m_bbox.expandBy(mesh->getBoundingBox());
+    // if(!m_mesh.size())
+    //     m_bbox = mesh->getBoundingBox();
+    // else
+    //     m_bbox = BoundingBox3f::merge(m_bbox,mesh->getBoundingBox());
 }
 
 void Accel::build() {
-    Octree* tree = new Octree(m_mesh);
+    Octree* tree = new Octree(m_mesh,m_bbox);
     m_accel = tree;
 }
 
