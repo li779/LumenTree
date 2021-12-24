@@ -25,7 +25,7 @@ public:
         return m_radiance * cos_theta_i;
     }
 
-    bool getIncomingRay(const EmitterQueryRecord& emitter_record, const Scene* scene, Ray3f shadow_ray) override{
+    bool getIncomingRay(const EmitterQueryRecord& emitter_record, const Scene* scene, Ray3f &shadow_ray) override{
         Vector3f wo = (emitter_record.emitter_samplingpoint - emitter_record.intersection_point);
         float dist = wo.norm();
         wo.normalize();
@@ -35,6 +35,7 @@ public:
         shadow_ray.d = emitter_record.intersection_point;
         shadow_ray.o = wo;
         shadow_ray.maxt = dist - Epsilon;
+        shadow_ray.update();
         return true;
     }
 

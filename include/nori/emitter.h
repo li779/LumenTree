@@ -40,7 +40,7 @@ public:
 
     virtual Color3f eval(const EmitterQueryRecord& record) const = 0;
     virtual Color3f getRadiance() const = 0;
-    virtual bool getIncomingRay(const EmitterQueryRecord& emitter_record, const Scene* scene, Ray3f shadow_ray) =0;
+    virtual bool getIncomingRay(const EmitterQueryRecord& emitter_record, const Scene* scene, Ray3f &shadow_ray) =0;
     virtual float getLightPdf(int size, const Mesh* emitter_mesh, const EmitterQueryRecord& record)=0;
 };
 

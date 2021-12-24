@@ -33,7 +33,7 @@ class WhittedIntegrator : public Integrator{
                 emitted_light += emitter_mesh->getEmitter()->getRadiance();
 
         Ray3f shadow_ray;    
-        if(emitter->getIncomingRay(emitter_record, scene, std::move(shadow_ray))){
+        if(emitter->getIncomingRay(emitter_record, scene, shadow_ray)){
             if(scene->rayIntersect(shadow_ray)){
                 light_eval += emitter->eval(emitter_record);
             }

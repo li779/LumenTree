@@ -14,23 +14,30 @@ struct treeNode
         int nTri;
         treeNode* child;
     };
-Octree::Octree(Mesh* mesh){
+Octree::Octree(std::vector<Mesh *> &mesh, BoundingBox3f &bbox){
     this->mesh = mesh;
-    bounds = mesh->getBoundingBox();
-    int nums = mesh->getTriangleCount();
-    std::vector<int> triNums(nums);
-    for (int i = 0; i < nums; ++i){
-        triNums[i] = i;
-        tribounds.push_back(mesh->getBoundingBox(i));
-    } 
+    bounds = bbox;
+    std::vector<std::pair<int,int>> triNums;
+    int total_num = 0;
+    for (int i = 0; i < mesh.size(); i++){
+        int nums = mesh[i]->getTriangleCount();
+        total_num += nums;
+        std::vector<BoundingBox3f> subtribounds(nums);
+        for (int j = 0; j < nums; ++j){
+            triNums.push_back({i,j});
+            subtribounds[j] = mesh[i]->getBoundingBox(j);
+        }
+        tribounds.push_back(subtribounds);
+    }
+     
     root = new treeNode();
-    root->Init(0,0,nums,nullptr);
-    buildTree(triNums, bounds, root, nums);
+    root->Init(0,0,total_num,nullptr);
+    buildTree(triNums, bounds, root, total_num);
 
 }
-void Octree::buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode *cur, int nTri){
+void Octree::buildTree(std::vector<std::pair<int,int>> meshIndex, BoundingBox3f bound, treeNode *cur, int nTri){
     // leaf condition
-    if(nTri<5 || bound.getVolume()<0.00001f){
+    if(nTri < 5 || bound.getVolume() < 0.00001f){
         cur->nTri = nTri;
         cur->meshIndex = meshIndices.size();
         for(int i = 0; i < nTri; i++){
@@ -41,7 +48,7 @@ void Octree::buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode
         std::vector<BoundingBox3f> subbounds;
         Point3f halfsize =0.5*(bound.max-bound.min);
         cur->child = new treeNode[8];
-        std::vector<std::vector<int>> indexArray(8);
+        std::vector<std::vector<std::pair<int,int>>> indexArray(8);
         // get all bounding boxes for all 8 subnodes
         for (int i = 0; i < 2; i++){
             for (int j = 0; j < 2; j++){
@@ -54,7 +61,7 @@ void Octree::buildTree(std::vector<int> meshIndex, BoundingBox3f bound, treeNode
         // search through all mesh triangles
         for(int index = 0; index < nTri; index++){
             for(int i = 0; i< 8; i++){
-                if(tribounds[meshIndex[index]].overlaps(subbounds[i])){
+                if(tribounds[meshIndex[index].first][meshIndex[index].second].overlaps(subbounds[i])){
                     indexArray[i].push_back(meshIndex[index]);
                 }
             }
@@ -90,15 +97,16 @@ bool Octree::recursive(const treeNode &node, Ray3f &ray_, Intersection &its, boo
     if (node.flag==1)
     for (uint32_t i = 0; i < node.nTri; ++i) {
         float u, v, t;
-        uint32_t triangle_idx = meshIndices[node.meshIndex+i];
-        if (mesh->rayIntersect(triangle_idx, ray_, u, v, t) && t < ray_.maxt) {
+        uint32_t mesh_idx = meshIndices[node.meshIndex+i].first;
+        uint32_t triangle_idx = meshIndices[node.meshIndex+i].second;
+        if (mesh[mesh_idx]->rayIntersect(triangle_idx, ray_, u, v, t) && t < ray_.maxt) {
             /* An intersection was found! Can terminate
                immediately if this is a shadow ray query */
             if (shadowRay)
                 return true;
             ray_.maxt = its.t = t;
             its.uv = Point2f(u, v);
-            its.mesh = mesh;
+            its.mesh = mesh[mesh_idx];
             triIndex = triangle_idx;
             foundIntersection = true;
         }
