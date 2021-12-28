@@ -1,0 +1,31 @@
+
+
+<scene>
+	<integrator type="normals"/>
+
+	<camera type="perspective">
+	        <transform name="toWorld">
+		        <lookat origin="0, 0.01, 0"
+				target="0, 0, 0"
+				up="0, 0, 1"/>
+		</transform>
+		<float name="fov" value="1e-6"/>
+		<integer name="width" value="1"/>
+		<integer name="height" value="1"/>
+	</camera>
+
+	<mesh type="obj">
+		<string name="filename" value="meshes/floor.obj"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.5, 0.5, 0.5"/>
+		</bsdf>
+	</mesh>
+
+	<mesh type="obj">
+		<string name="filename" value="meshes/polylum1.obj"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0, 0, 0"/>
+		</bsdf>
+	</mesh>
+</scene>
+
