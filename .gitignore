@@ -26,3 +26,6 @@ rules.ninja
 Debug
 x64
 /scene
+scenes/
+
+*.m
