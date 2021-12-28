@@ -44,18 +44,12 @@
 
 	<mesh type="obj">
 		<string name="filename" value="meshes/sphere1.obj"/>
-    <bsdf type="diffuse">
-			<color name="albedo" value="0.630 0.065 0.05"/>
-		</bsdf>
-		<!--<bsdf type="mirror"/>-->
+		<bsdf type="mirror"/>
 	</mesh>
 
 	<mesh type="obj">
 		<string name="filename" value="meshes/sphere2.obj"/>
-    <bsdf type="diffuse">
-			<color name="albedo" value="0.630 0.065 0.05"/>
-		</bsdf>
-		<!--<bsdf type="dielectric"/>-->
+		<bsdf type="dielectric"/>
 	</mesh>
 
 	<mesh type="obj">

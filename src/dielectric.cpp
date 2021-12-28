@@ -31,7 +31,32 @@ public:
     }
 
     Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
-        throw NoriException("Unimplemented!");
+        float cos_theta_i = Frame::cosTheta(bRec.wi);
+
+        float kr = fresnel(cos_theta_i, m_extIOR, m_intIOR);
+        bRec.measure = EDiscrete;
+
+        if (sample.x() < kr) {
+            // reflect
+            bRec.wo = Vector3f(
+                    -bRec.wi.x(),
+                    -bRec.wi.y(),
+                    bRec.wi.z()
+            );
+            bRec.eta = 1.f;
+            // pdf weighted ray color, fresnel term reduces
+            return {1.f};
+        } else {
+            //refract
+            bRec.eta = cos_theta_i >= 0 ?  m_extIOR / m_intIOR : m_intIOR / m_extIOR;
+            Normal3f n = cos_theta_i < 0 ? Normal3f(0.f, 0.f, -1.f) : Normal3f(0.f, 0.f, 1.f);
+            cos_theta_i = abs(cos_theta_i);
+            float cos_theta_o = sqrt(1 - bRec.eta * bRec.eta * fmax(0.f, 1.f - cos_theta_i * cos_theta_i));
+            bRec.wo = bRec.eta * -bRec.wi + (bRec.eta * cos_theta_i - cos_theta_o) * n;
+            bRec.wo.normalize();
+            // pdf weighted ray color, fresnel term reduces
+            return {bRec.eta * bRec.eta};
+        }
     }
 
     std::string toString() const {

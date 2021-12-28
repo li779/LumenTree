@@ -32,8 +32,8 @@ public:
         if ((-wo).dot(emitter_record.emitter_samplingnormal) <= 0) {
             return false;
         }
-        shadow_ray.d = emitter_record.intersection_point;
-        shadow_ray.o = wo;
+        shadow_ray.d = wo;
+        shadow_ray.o = emitter_record.intersection_point;
         shadow_ray.maxt = dist - Epsilon;
         shadow_ray.update();
         return true;
