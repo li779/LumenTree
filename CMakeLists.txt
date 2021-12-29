@@ -67,6 +67,7 @@ add_executable(LumenTree
   include/nori/vector.h
   include/nori/warp.h
   include/nori/octree.h
+  include/nori/accel_embree.h
   #include/nori/KdTree.h
 
   # Source code files
@@ -96,6 +97,7 @@ add_executable(LumenTree
   src/octree.cpp
   src/area.cpp
   src/whitted.cpp
+  src/accel_embree.cpp
   #src/KdTree.cpp
 )
 
@@ -113,9 +115,9 @@ add_executable(warptest
 )
 
 if (WIN32)
-  target_link_libraries(LumenTree tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS} zlibstatic)
+  target_link_libraries(LumenTree tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS} zlibstatic embree)
 else()
-  target_link_libraries(LumenTree tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS})
+  target_link_libraries(LumenTree tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS} embree)
 endif()
 
 target_link_libraries(warptest tbb_static nanogui ${NANOGUI_EXTRA_LIBS})
