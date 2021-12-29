@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.2)
-project(nori)
+project(LumenTree)
 
 add_subdirectory(ext ext_build)
 
@@ -37,7 +37,7 @@ include_directories(
 
 # The following lines build the main executable. If you add a source
 # code file to Nori, be sure to include it in this list.
-add_executable(nori
+add_executable(LumenTree
 
   # Header files
   include/nori/bbox.h
@@ -111,9 +111,9 @@ add_executable(warptest
 )
 
 if (WIN32)
-  target_link_libraries(nori tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS} zlibstatic)
+  target_link_libraries(LumenTree tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS} zlibstatic)
 else()
-  target_link_libraries(nori tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS})
+  target_link_libraries(LumenTree tbb_static pugixml IlmImf nanogui ${NANOGUI_EXTRA_LIBS})
 endif()
 
 target_link_libraries(warptest tbb_static nanogui ${NANOGUI_EXTRA_LIBS})
@@ -130,7 +130,7 @@ if (CMAKE_GENERATOR STREQUAL "Ninja")
 endif()
 
 target_compile_features(warptest PRIVATE cxx_std_17)
-target_compile_features(nori PRIVATE cxx_std_17)
+target_compile_features(LumenTree PRIVATE cxx_std_17)
 
 # vim: set et ts=2 sw=2 ft=cmake nospell:
 

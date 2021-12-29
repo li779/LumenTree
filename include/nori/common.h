@@ -23,7 +23,7 @@
 #include <tinyformat.h>
 
 /* Convenience definitions */
-#define NORI_NAMESPACE_BEGIN namespace nori {
+#define NORI_NAMESPACE_BEGIN namespace LumenTree {
 #define NORI_NAMESPACE_END }
 
 #if defined(__NORI_APPLE__NORI_)

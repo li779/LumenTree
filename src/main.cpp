@@ -19,7 +19,7 @@
 #include <filesystem/resolver.h>
 #include <thread>
 
-using namespace nori;
+using namespace LumenTree;
 
 static int threadCount = -1;
 static bool gui = true;

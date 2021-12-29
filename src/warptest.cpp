@@ -1,5 +1,5 @@
 /*
-    This file is part of Nori, a simple educational ray tracer
+    This file is part of LumenTree, a simple educational ray tracer
 
     Copyright (c) 2015 by Wenzel Jakob
 */
@@ -46,16 +46,16 @@
 using namespace nanogui;
 using namespace std;
 
-using nori::NoriException;
-using nori::NoriObjectFactory;
-using nori::Point2f;
-using nori::Point2i;
-using nori::Point3f;
-using nori::Warp;
-using nori::PropertyList;
-using nori::BSDF;
-using nori::BSDFQueryRecord;
-using nori::Color3f;
+using LumenTree::NoriException;
+using LumenTree::NoriObjectFactory;
+using LumenTree::Point2f;
+using LumenTree::Point2i;
+using LumenTree::Point3f;
+using LumenTree::Warp;
+using LumenTree::PropertyList;
+using LumenTree::BSDF;
+using LumenTree::BSDFQueryRecord;
+using LumenTree::Color3f;
 
 
 enum PointType : int {
@@ -96,7 +96,7 @@ struct WarpTest {
     std::unique_ptr<double[]> obsFrequencies, expFrequencies;
 
     WarpTest(WarpType warpType_, float parameterValue_, BSDF *bsdf_ = nullptr,
-             BSDFQueryRecord bRec_ = BSDFQueryRecord(nori::Vector3f()),
+             BSDFQueryRecord bRec_ = BSDFQueryRecord(LumenTree::Vector3f()),
              int xres_ = kDefaultXres, int yres_ = kDefaultYres)
         : warpType(warpType_), parameterValue(parameterValue_), bsdf(bsdf_),
           bRec(bRec_), xres(xres_), yres(yres_) {
@@ -113,13 +113,13 @@ struct WarpTest {
         memset(obsFrequencies.get(), 0, res*sizeof(double));
         memset(expFrequencies.get(), 0, res*sizeof(double));
 
-        nori::MatrixXf points, values;
+        LumenTree::MatrixXf points, values;
         generatePoints(sampleCount, Independent, points, values);
 
         for (int i=0; i<sampleCount; ++i) {
             if (values(0, i) == 0)
                 continue;
-            nori::Vector3f sample = points.col(i);
+            LumenTree::Vector3f sample = points.col(i);
             float x, y;
 
             if (warpType == Square) {
@@ -157,7 +157,7 @@ struct WarpTest {
                 double sinPhi = std::sin(x),
                        cosPhi = std::cos(x);
 
-                nori::Vector3f v((float) (sinTheta * cosPhi),
+                LumenTree::Vector3f v((float) (sinTheta * cosPhi),
                            (float) (sinTheta * sinPhi),
                            (float) y);
 
@@ -172,7 +172,7 @@ struct WarpTest {
                 else if (warpType == MicrofacetBRDF) {
                     BSDFQueryRecord br(bRec);
                     br.wo = v;
-                    br.measure = nori::ESolidAngle;
+                    br.measure = LumenTree::ESolidAngle;
                     return bsdf->pdf(br);
                 } else {
                     throw NoriException("Invalid warp type");
@@ -250,7 +250,7 @@ struct WarpTest {
 
 
     void generatePoints(int &pointCount, PointType pointType,
-                        nori::MatrixXf &positions, nori::MatrixXf &weights) {
+                        LumenTree::MatrixXf &positions, LumenTree::MatrixXf &weights) {
         /* Determine the number of points that should be sampled */
         int sqrtVal = (int) (std::sqrt((float) pointCount) + 0.5f);
         float invSqrtVal = 1.f / sqrtVal;
@@ -293,7 +293,7 @@ struct WarpTest {
         list.setColor("kd", Color3f(kd));
         auto * brdf = (BSDF *) NoriObjectFactory::createInstance("microfacet", list);
 
-        nori::Vector3f wi(std::sin(bsdfAngle), 0.f,
+        LumenTree::Vector3f wi(std::sin(bsdfAngle), 0.f,
                     std::max(std::cos(bsdfAngle), 1e-4f));
         wi = wi.normalized();
         BSDFQueryRecord bRec(wi);
@@ -306,16 +306,16 @@ struct Arcball {
     using Quaternionf = Eigen::Quaternion<float, Eigen::DontAlign>;
 
     Arcball(float speedFactor = 2.0f)
-        : m_active(false), m_lastPos(nori::Vector2i::Zero()), m_size(nori::Vector2i::Zero()),
+        : m_active(false), m_lastPos(LumenTree::Vector2i::Zero()), m_size(LumenTree::Vector2i::Zero()),
           m_quat(Quaternionf::Identity()),
           m_incr(Quaternionf::Identity()),
           m_speedFactor(speedFactor) { }
 
-    void setSize(nori::Vector2i size) { m_size = size; }
+    void setSize(LumenTree::Vector2i size) { m_size = size; }
 
-    const nori::Vector2i &size() const { return m_size; }
+    const LumenTree::Vector2i &size() const { return m_size; }
 
-    void button(nori::Vector2i pos, bool pressed) {
+    void button(LumenTree::Vector2i pos, bool pressed) {
         m_active = pressed;
         m_lastPos = pos;
         if (!m_active)
@@ -323,7 +323,7 @@ struct Arcball {
         m_incr = Quaternionf::Identity();
     }
 
-    bool motion(nori::Vector2i pos) {
+    bool motion(LumenTree::Vector2i pos) {
         if (!m_active)
             return false;
 
@@ -339,10 +339,10 @@ struct Arcball {
         ox *= invMinDim; oy *= invMinDim;
         tx *= invMinDim; ty *= invMinDim;
 
-        nori::Vector3f v0(ox, oy, 1.0f), v1(tx, ty, 1.0f);
+        LumenTree::Vector3f v0(ox, oy, 1.0f), v1(tx, ty, 1.0f);
         if (v0.squaredNorm() > 1e-4f && v1.squaredNorm() > 1e-4f) {
             v0.normalize(); v1.normalize();
-            nori::Vector3f axis = v0.cross(v1);
+            LumenTree::Vector3f axis = v0.cross(v1);
             float sa = std::sqrt(axis.dot(axis)),
                   ca = v0.dot(v1),
                   angle = std::atan2(sa, ca);
@@ -367,10 +367,10 @@ private:
     bool m_active;
 
     /// The last click position (which triggered the Arcball to be active / non-active).
-    nori::Vector2i m_lastPos;
+    LumenTree::Vector2i m_lastPos;
 
     /// The size of this Arcball.
-    nori::Vector2i m_size;
+    LumenTree::Vector2i m_size;
 
     /**
      * The current stable state.  When this Arcball is active, represents the
@@ -396,7 +396,7 @@ public:
 class WarpTestScreen : public Screen {
 public:
 
-    WarpTestScreen(): Screen(Vector2i(800, 600), "warptest: Sampling and Warping"), m_bRec(nori::Vector3f()) {
+    WarpTestScreen(): Screen(Vector2i(800, 600), "warptest: Sampling and Warping"), m_bRec(LumenTree::Vector3f()) {
         inc_ref();
         m_drawHistogram = false;
         initializeGUI();
@@ -425,7 +425,7 @@ public:
         }
 
         /* Generate the point positions */
-        nori::MatrixXf positions, values;
+        LumenTree::MatrixXf positions, values;
         try {
             WarpTest tester(warpType, parameterValue, m_brdf.get(), m_bRec);
             tester.generatePoints(m_pointCount, pointType, positions, values);
@@ -447,17 +447,17 @@ public:
         if (warpType != Square) {
             for (int i=0; i < m_pointCount; ++i) {
                 if (values(0, i) == 0.0f) {
-                    positions.col(i) = nori::Vector3f::Constant(std::numeric_limits<float>::quiet_NaN());
+                    positions.col(i) = LumenTree::Vector3f::Constant(std::numeric_limits<float>::quiet_NaN());
                     continue;
                 }
                 positions.col(i) =
                     ((value_scale == 0 ? 1.0f : (value_scale * values(0, i))) *
-                     positions.col(i)) * 0.5f + nori::Vector3f(0.5f, 0.5f, 0.0f);
+                     positions.col(i)) * 0.5f + LumenTree::Vector3f(0.5f, 0.5f, 0.0f);
             }
         }
 
         /* Generate a color gradient */
-        nori::MatrixXf colors(3, m_pointCount);
+        LumenTree::MatrixXf colors(3, m_pointCount);
         float colScale = 1.f / m_pointCount;
         for (int i=0; i<m_pointCount; ++i)
             colors.col(i) << i*colScale, 1-i*colScale, 0;
@@ -489,7 +489,7 @@ public:
             }
             if (warpType != Square) {
                 for (int i=0; i<m_lineCount; ++i)
-                    positions.col(i) = positions.col(i) * 0.5f + nori::Vector3f(0.5f, 0.5f, 0.0f);
+                    positions.col(i) = positions.col(i) * 0.5f + LumenTree::Vector3f(0.5f, 0.5f, 0.0f);
             }
             m_gridShader->set_buffer("position", VariableType::Float32, {(size_t) m_lineCount, 3}, positions.data());
         }
@@ -537,7 +537,7 @@ public:
     bool mouse_motion_event(const Vector2i &p, const Vector2i &rel,
                                   int button, int modifiers) {
         if (!Screen::mouse_motion_event(p, rel, button, modifiers))
-            m_arcball.motion(nori::Vector2i(p.x(), p.y()));
+            m_arcball.motion(LumenTree::Vector2i(p.x(), p.y()));
         return true;
     }
 
@@ -549,7 +549,7 @@ public:
         }
         if (!Screen::mouse_button_event(p, button, down, modifiers)) {
             if (button == GLFW_MOUSE_BUTTON_1)
-                m_arcball.button(nori::Vector2i(p.x(), p.y()), down);
+                m_arcball.button(LumenTree::Vector2i(p.x(), p.y()), down);
         }
         return true;
     }
@@ -691,10 +691,10 @@ public:
         m_window->set_layout(new GroupLayout());
 
         set_resize_callback([&](Vector2i size) {
-            m_arcball.setSize(nori::Vector2i(size.x(), size.y()));
+            m_arcball.setSize(LumenTree::Vector2i(size.x(), size.y()));
         });
 
-        m_arcball.setSize(nori::Vector2i(m_size.x(), m_size.y()));
+        m_arcball.setSize(LumenTree::Vector2i(m_size.x(), m_size.y()));
 
         new Label(m_window, "Input point set", "sans-bold");
 
@@ -968,7 +968,7 @@ int main(int argc, char **argv) {
     WarpType warpType;
     float paramValue, param2Value;
     std::unique_ptr<BSDF> bsdf;
-    auto bRec = BSDFQueryRecord(nori::Vector3f());
+    auto bRec = BSDFQueryRecord(LumenTree::Vector3f());
     std::tie(warpType, paramValue, param2Value) = parse_arguments(argc, argv);
     if (warpType == MicrofacetBRDF) {
         float bsdfAngle = M_PI * 0.f;
