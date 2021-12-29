@@ -33,6 +33,8 @@ include_directories(
   SYSTEM ${FILESYSTEM_INCLUDE_DIR}
   # STB Image Write
   SYSTEM ${STB_IMAGE_WRITE_INCLUDE_DIR}
+  # embree
+  ${EMBREE_INCLUDE_DIRS}
 )
 
 # The following lines build the main executable. If you add a source

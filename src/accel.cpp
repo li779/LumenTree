@@ -7,21 +7,23 @@
 #include <nori/accel.h>
 #include <Eigen/Geometry>
 #include <nori/octree.h>
+#include <nori/accel_embree.h>
 
 NORI_NAMESPACE_BEGIN
 
 void Accel::addMesh(Mesh *mesh) {
     m_mesh.push_back(mesh);
     m_bbox.expandBy(mesh->getBoundingBox());
-    // if(!m_mesh.size())
-    //     m_bbox = mesh->getBoundingBox();
-    // else
-    //     m_bbox = BoundingBox3f::merge(m_bbox,mesh->getBoundingBox());
 }
 
 void Accel::build() {
-    Octree* tree = new Octree(m_mesh,m_bbox);
-    m_accel = tree;
+    #ifdef USE_EMBREE
+        accel_embree* embree = new accel_embree(m_mesh);
+        m_accel = embree;
+    #else
+        Octree* tree = new Octree(m_mesh,m_bbox);
+        m_accel = tree;
+    #endif
 }
 
 bool Accel::rayIntersect(const Ray3f &ray_, Intersection &its, bool shadowRay) const {
@@ -45,7 +47,14 @@ bool Accel::rayIntersect(const Ray3f &ray_, Intersection &its, bool shadowRay) c
     //         foundIntersection = true;
     //     }
     // }
-    foundIntersection = ((Octree*)m_accel)->IntersectOctree(ray, its, shadowRay, f);
+    #ifdef USE_EMBREE
+        if(shadowRay)
+            foundIntersection = ((accel_embree*)m_accel)->IntersectTest(ray, its, f);
+        else
+            foundIntersection = ((accel_embree*)m_accel)->IntersectWithDetail(ray, its, f);
+    #else
+        foundIntersection = ((Octree*)m_accel)->IntersectOctree(ray, its, shadowRay, f);
+    #endif
     if(shadowRay && foundIntersection) return true;
 
     if (foundIntersection) {

@@ -150,6 +150,26 @@ set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
 add_subdirectory(nanogui)
 set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")
 
+# Build embree
+set(EMBREE_ISPC_SUPPORT           OFF CACHE BOOL " " FORCE)
+set(EMBREE_TUTORIALS              OFF CACHE BOOL " " FORCE)
+set(EMBREE_FILTER_FUNCTION        OFF CACHE BOOL " " FORCE)
+set(EMBREE_IGNORE_CMAKE_CXX_FLAGS OFF CACHE BOOL " " FORCE)
+set(EMBREE_GEOMETRY_QUAD          OFF CACHE BOOL " " FORCE)
+set(EMBREE_GEOMETRY_CURVE         OFF CACHE BOOL " " FORCE)
+set(EMBREE_GEOMETRY_GRID          OFF CACHE BOOL " " FORCE)
+set(EMBREE_GEOMETRY_SUBDIVISION   OFF CACHE BOOL " " FORCE)
+set(EMBREE_GEOMETRY_INSTANCE      ON  CACHE BOOL " " FORCE)
+set(EMBREE_GEOMETRY_USER          ON  CACHE BOOL " " FORCE)
+set(EMBREE_MAX_ISA "DEFAULT" CACHE STRING " " FORCE)
+set(EMBREE_TASKING_SYSTEM "INTERNAL" CACHE STRING " " FORCE)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
+endif()
+add_subdirectory(embree)
+
+
 # Build the pugixml parser
 add_library(pugixml STATIC pugixml/src/pugixml.cpp)
 set_property(TARGET pugixml PROPERTY
@@ -187,6 +207,8 @@ set(FILESYSTEM_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/filesystem)
 set(PUGIXML_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/pugixml/src)
+set(EMBREE_INCLUDE_DIRS 
+  ${CMAKE_CURRENT_SOURCE_DIR}/embree/include)
 
 # Compile remainder of the codebase with compiler warnings turned on
 if(MSVC)
