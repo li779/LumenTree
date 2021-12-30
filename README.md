@@ -33,7 +33,8 @@ On Windows, also create a building directory `build`. Use CMake to compile proje
 
 ### Implemented Functionality
 #### Accelation Data Structure
-1. LumenTree natively uses a simple **octree** to store all shapes in the scene.
+1. LumenTree natively uses a simple **octree** to store all shapes in the scene
+2. A high performance Intel Embree ray tracing kernal can be used by changing CMake options
 
 #### BSDF
 1. diffusive material
@@ -49,7 +50,7 @@ On Windows, also create a building directory `build`. Use CMake to compile proje
 
 ---
 ### Known Issues
-There is a known issue with the NanoGUI version that Nori uses: on Linux systems with an integrated Intel GPU, a bug in the Mesa graphics drivers causes the GUI to freeze on startup. A workaround is to temporarily switch to an older Mesa driver to run Nori. This can be done by running
+There is a known issue with the NanoGUI version that Nori uses: on Linux systems with an integrated Intel GPU, a bug in the Mesa graphics drivers causes the GUI to freeze on startup. A workaround is to temporarily switch to an older Mesa driver to run Nori. This can be done by running.
 ```
 export MESA_LOADER_DRIVER_OVERRIDE=i965
 ```
