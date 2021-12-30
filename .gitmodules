@@ -28,3 +28,6 @@
 [submodule "ext/eigen"]
 	path = ext/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "ext/embree"]
+	path = ext/embree
+	url = https://github.com/mitsuba-renderer/embree
