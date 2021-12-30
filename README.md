@@ -1,4 +1,4 @@
-[![CS440 Banner](https://rgl.s3.eu-central-1.amazonaws.com/media/uploads/wjakob/2017/02/16/cs440-logo_web.jpg)](https://rgl.s3.eu-central-1.amazonaws.com/media/uploads/wjakob/2017/02/20/cs440-rgl.jpg)
+![LumenTree Banner](https://github.com/li779/LumenTree/blob/master/scenes/grand/scene.png)
 
 ## LumenTree
 
