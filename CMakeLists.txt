@@ -3,6 +3,8 @@ project(LumenTree)
 
 add_subdirectory(ext ext_build)
 
+option(USE_EMBREE "Use Embree for ray tracing accelation?" OFF)
+
 include_directories(
   # Nori include files
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -33,9 +35,12 @@ include_directories(
   SYSTEM ${FILESYSTEM_INCLUDE_DIR}
   # STB Image Write
   SYSTEM ${STB_IMAGE_WRITE_INCLUDE_DIR}
-  # embree
-  ${EMBREE_INCLUDE_DIRS}
 )
+
+if(USE_EMBREE)
+  include_directories(${EMBREE_INCLUDE_DIRS})
+  add_definitions(-DUSE_EMBREE=1)
+endif()
 
 # The following lines build the main executable. If you add a source
 # code file to Nori, be sure to include it in this list.

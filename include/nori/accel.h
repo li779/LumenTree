@@ -8,8 +8,6 @@
 
 #include <nori/mesh.h>
 
-#define USE_EMBREE
-
 NORI_NAMESPACE_BEGIN
 
 /**
