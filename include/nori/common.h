@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <ImathPlatform.h>
 #include <tinyformat.h>
+#include <unordered_set>
 
 /* Convenience definitions */
 #define NORI_NAMESPACE_BEGIN namespace LumenTree {

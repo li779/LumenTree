@@ -11,7 +11,8 @@ class Octree{
 
     private:
     void buildTree(std::vector<std::pair<int,int>> meshIndex, BoundingBox3f bound, treeNode *parent, int nTri);
-    bool recursive(const treeNode &node, Ray3f &ray_, Intersection &its, bool shadowRay, BoundingBox3f bbox,int &triIndex) const;
+    bool recursive(const treeNode &node, Ray3f &ray_, Intersection &its, BoundingBox3f bbox,int &triIndex) const;
+    bool recursiveTest(const treeNode &node, Ray3f &ray_, BoundingBox3f bbox, int &triIndex) const;
     std::vector<Mesh *> mesh;
     std::vector<std::pair<int,int>> meshIndices;
     BoundingBox3f bounds;
