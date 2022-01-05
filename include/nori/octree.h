@@ -10,7 +10,7 @@ class Octree{
     bool IntersectOctree(Ray3f &ray_, Intersection &its, bool shadowRay,int &triIndex) const;
 
     private:
-    void buildTree(std::vector<std::pair<int,int>> meshIndex, BoundingBox3f bound, treeNode *parent, int nTri);
+    int buildTree(std::vector<std::pair<int,int>> meshIndex, BoundingBox3f bound, treeNode *parent, int nTri);
     bool recursive(const treeNode &node, Ray3f &ray_, Intersection &its, BoundingBox3f bbox,int &triIndex) const;
     bool recursiveTest(const treeNode &node, Ray3f &ray_, BoundingBox3f bbox, int &triIndex) const;
     std::vector<Mesh *> mesh;

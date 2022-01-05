@@ -32,19 +32,23 @@ Octree::Octree(std::vector<Mesh *> &mesh, BoundingBox3f &bbox){
      
     root = new treeNode();
     root->Init(0,0,total_num,nullptr);
-    buildTree(triNums, bounds, root, total_num);
-
+    int treeDepth = buildTree(triNums, bounds, root, total_num);
+    std::cout<<"Tree built: depth="<<treeDepth<<std::endl;
+    tribounds.clear();
+    tribounds.shrink_to_fit();
 }
-void Octree::buildTree(std::vector<std::pair<int,int>> meshIndex, BoundingBox3f bound, treeNode *cur, int nTri){
+int Octree::buildTree(std::vector<std::pair<int,int>> meshIndex, BoundingBox3f bound, treeNode *cur, int nTri){
+    int depth = 1;
     // leaf condition
-    if(nTri < 5 || bound.getVolume() < 0.00001f){
+    if(nTri < 8 || bound.getVolume() < 0.00001f){
         cur->nTri = nTri;
         cur->meshIndex = meshIndices.size();
         for(int i = 0; i < nTri; i++){
             meshIndices.push_back(meshIndex[i]);
         }
         cur->flag = 1;
-    }else{
+    }
+    else{
         std::vector<BoundingBox3f> subbounds;
         Point3f halfsize =0.5*(bound.max-bound.min);
         cur->child = new treeNode[8];
@@ -68,12 +72,14 @@ void Octree::buildTree(std::vector<std::pair<int,int>> meshIndex, BoundingBox3f 
         }
         for(int i = 0; i < 8; i++){
             (cur->child)[i].Init(0,0,indexArray[i].size(),nullptr);
-            buildTree(indexArray[i],subbounds[i],&(cur->child)[i],indexArray[i].size());
+            depth = std::max(depth,1+buildTree(indexArray[i],subbounds[i],&(cur->child)[i],indexArray[i].size()));
         }
     }
+    return depth;
 }
 bool Octree::IntersectOctree(Ray3f &ray, Intersection &its, bool shadowRay, int &triIndex) const {
-   
+    if(!bounds.rayIntersect(ray))
+        return false;
     if(shadowRay)
         return Octree::recursiveTest(*root,ray,bounds,triIndex);
     else
@@ -115,9 +121,27 @@ bool Octree::recursive(const treeNode &node, Ray3f &ray_, Intersection &its, Bou
                 }
             }
         }
+        float T=0;
+        std::vector<std::pair<int, float>> children;
+        for (int i = 0; i < 8; i++){
+            float nearT, farT;
+            if(subbounds[i].rayIntersect(ray_, nearT, farT) &&(ray_.mint <= farT && nearT <= ray_.maxt)){
+                T = std::max(T,farT);
+                children.push_back({i,nearT});
+            }
+        }
 
-        for (int i = 0; i<8; i++) {
-            foundIntersection = Octree::recursive(node.child[i], ray_, its, subbounds[i], triIndex) || foundIntersection;
+        std::sort(children.begin(), children.end(), [](const std::pair<int, float>& l, const std::pair<int, float>& r) {
+            return l.second < r.second;
+        });
+
+        for (auto childpair: children) {
+            if(T < childpair.second)
+                break;
+            int index = childpair.first;
+            foundIntersection = Octree::recursive(node.child[index], ray_, its, subbounds[index], triIndex) || foundIntersection;
+            if(foundIntersection)
+                T = its.t;
         }
     }
     return foundIntersection;
@@ -125,11 +149,6 @@ bool Octree::recursive(const treeNode &node, Ray3f &ray_, Intersection &its, Bou
 
 bool Octree::recursiveTest(const treeNode &node, Ray3f &ray_, BoundingBox3f bbox, int &triIndex) const {
     bool foundIntersection = false;
-
-    // only check triangles of node and its children if ray intersects with node bbox
-    if (!bbox.rayIntersect(ray_)) {
-        return false;
-    }
     
     // search through all triangles in node
     if (node.flag==1)
@@ -152,19 +171,19 @@ bool Octree::recursiveTest(const treeNode &node, Ray3f &ray_, BoundingBox3f bbox
                 }
             }
         }
-        std::vector<std::pair<int, float>> children(8);
+        std::vector<std::pair<int, float>> children;
         for (int i = 0; i < 8; i++){
-            children[i].first = i;
-            children[i].second = subbounds[i].distanceTo(ray_.o);
+            if(subbounds[i].rayIntersect(ray_))
+                children.push_back({i,subbounds[i].distanceTo(ray_.o)});
         }
 
         std::sort(children.begin(), children.end(), [](const std::pair<int, float>& l, const std::pair<int, float>& r) {
             return l.second < r.second;
         });
 
-        for (int i = 0; i<8; i++) {
-            int index = children[i].first;
-            foundIntersection = Octree::recursiveTest(node.child[index], ray_, subbounds[index], triIndex) || foundIntersection;
+        for (auto childpair: children) {
+            int index = childpair.first;
+            foundIntersection = Octree::recursiveTest(node.child[index], ray_, subbounds[index], triIndex);
             if (foundIntersection)
                 return true;
         }
